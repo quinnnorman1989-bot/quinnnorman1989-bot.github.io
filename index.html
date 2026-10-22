@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F766E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>PackRight - Moving Packing App</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#FAF7F2; --card:#FFFFFF; --ink:#22302B; --muted:#7A7A72;
+  --primary:#0F766E; --primary-dark:#0B5E55; --primary-soft:#E3F0ED;
+  --accent:#D97706; --accent-soft:#FDF0DC;
+  --danger:#C2410C; --danger-soft:#FDEBDD;
+  --line:#E7E0D3; --radius:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:16px; line-height:1.45;
+  padding-bottom:84px;
+}
+h1,h2,h3{margin:.4em 0;}
+button,input,select,textarea{font-size:16px; font-family:inherit;}
+input,select,textarea{
+  width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px;
+  background:#fff; color:var(--ink); margin:6px 0;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--primary); border-color:var(--primary);}
+label{font-weight:600; font-size:14px; display:block; margin-top:10px;}
+.btn{
+  display:inline-block; border:none; border-radius:12px; padding:13px 18px;
+  font-weight:700; cursor:pointer; min-height:48px; text-align:center;
+}
+.btn-primary{background:var(--primary); color:#fff;}
+.btn-primary:active{background:var(--primary-dark);}
+.btn-secondary{background:#fff; color:var(--primary); border:2px solid var(--primary);}
+.btn-danger{background:var(--danger); color:#fff;}
+.btn-ghost{background:transparent; color:var(--primary); padding:10px 12px; min-height:44px;}
+.btn-block{width:100%; margin:8px 0;}
+.btn:disabled{opacity:.5;}
+header.appbar{
+  background:var(--primary); color:#fff; padding:14px 16px 12px;
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+header.appbar h1{font-size:20px; margin:0;}
+.plan-badge{
+  font-size:12px; font-weight:800; padding:5px 10px; border-radius:999px;
+  background:#fff; color:var(--primary-dark); white-space:nowrap;
+}
+.plan-badge.pro{background:var(--accent); color:#fff;}
+.countdown-chip{background:rgba(255,255,255,.18); border-radius:10px; padding:6px 10px; font-size:13px; font-weight:700; white-space:nowrap;}
+main#view{padding:14px 14px 20px; max-width:720px; margin:0 auto;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin:10px 0; box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.card.tappable{cursor:pointer;}
+.card.tappable:active{background:#F4EFE6;}
+.row{display:flex; align-items:center; gap:10px;}
+.row.between{justify-content:space-between;}
+.grow{flex:1;}
+.muted{color:var(--muted); font-size:14px;}
+.small{font-size:13px;}
+.progress{height:12px; background:#EDE7D9; border-radius:999px; overflow:hidden; margin:8px 0;}
+.progress > div{height:100%; background:var(--primary); border-radius:999px; transition:width .3s;}
+.progress.thin{height:8px;}
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; text-align:center;}
+.stat .num{font-size:26px; font-weight:800; color:var(--primary-dark);}
+.stat .lbl{font-size:13px; color:var(--muted);}
+.badge{display:inline-block; font-size:12px; font-weight:700; padding:3px 9px; border-radius:999px; margin:2px 4px 2px 0;}
+.badge.fragile{background:var(--danger-soft); color:var(--danger);}
+.badge.packed{background:var(--primary-soft); color:var(--primary-dark);}
+.badge.unpacked{background:#EFEDE6; color:var(--muted);}
+.badge.sealed{background:var(--primary); color:#fff;}
+.badge.ess{background:var(--accent-soft); color:var(--accent);}
+.badge.keep{background:#E3F0ED; color:#0B5E55;}
+.badge.donate{background:#E8F0FE; color:#1D4ED8;}
+.badge.sell{background:#FDF0DC; color:#92400E;}
+.badge.discard{background:#F3E8E8; color:#991B1B;}
+.list-item{display:flex; gap:12px; align-items:center; padding:12px 4px; border-bottom:1px solid var(--line);}
+.list-item:last-child{border-bottom:none;}
+.thumb{width:56px; height:56px; border-radius:10px; object-fit:cover; background:#EFEDE6; flex-shrink:0;}
+.checkbox{width:28px; height:28px; accent-color:var(--primary); flex-shrink:0;}
+.icon-btn{border:none; background:transparent; font-size:22px; padding:8px; cursor:pointer; min-width:44px; min-height:44px;}
+nav#bottomnav{
+  position:fixed; bottom:0; left:0; right:0; z-index:50;
+  background:#fff; border-top:1px solid var(--line);
+  display:flex; padding:6px 4px calc(8px + env(safe-area-inset-bottom));
+}
+nav#bottomnav button{
+  flex:1; border:none; background:none; color:var(--muted);
+  font-size:11px; font-weight:700; padding:8px 2px; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:2px; min-height:56px;
+}
+nav#bottomnav button .ico{font-size:22px;}
+nav#bottomnav button.active{color:var(--primary);}
+#modal-root{position:fixed; inset:0; z-index:100; display:none;}
+#modal-root.open{display:block;}
+.modal-back{position:absolute; inset:0; background:rgba(0,0,0,.45);}
+.modal-sheet{
+  position:absolute; left:0; right:0; bottom:0; max-height:92vh; overflow-y:auto;
+  background:#fff; border-radius:20px 20px 0 0; padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+}
+.modal-sheet h2{margin-top:0;}
+.fab{
+  position:fixed; right:16px; bottom:92px; z-index:40;
+  width:60px; height:60px; border-radius:50%; border:none;
+  background:var(--primary); color:#fff; font-size:30px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+.tabs{display:flex; gap:8px; margin:10px 0;}
+.tabs button{flex:1; padding:10px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-weight:700; color:var(--muted); cursor:pointer;}
+.tabs button.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.chips{display:flex; gap:8px; overflow-x:auto; padding:6px 0; margin:6px 0;}
+.chips button{flex-shrink:0; padding:9px 14px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-weight:700; font-size:14px; cursor:pointer;}
+.chips button.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.sort-btns{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+.sort-btns button{border:1.5px solid var(--line); background:#fff; border-radius:8px; padding:8px 10px; font-size:13px; font-weight:700; cursor:pointer;}
+.sort-btns button.on{border-color:var(--primary); background:var(--primary-soft); color:var(--primary-dark);}
+.empty{text-align:center; color:var(--muted); padding:26px 10px;}
+/* sign-in screen */
+#signin-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:var(--bg);}
+.signin-card{background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px 22px; max-width:400px; width:100%; text-align:center;}
+.signin-card img.logo{width:88px; height:88px; border-radius:22px;}
+.signin-card h1{color:var(--primary-dark); margin:12px 0 4px;}
+.notice{background:var(--accent-soft); border:1px solid #F3D9A8; color:#7C4A03; border-radius:10px; padding:10px 12px; font-size:14px; margin:12px 0; text-align:left;}
+.notice.err{background:var(--danger-soft); border-color:#F2C4A8; color:#8A2E0B;}
+.upgrade-box{background:var(--accent-soft); border:2px solid var(--accent); border-radius:var(--radius); padding:16px; margin:12px 0;}
+.upgrade-box h3{color:#7C4A03; margin-top:0;}
+.price{font-size:30px; font-weight:800; color:var(--primary-dark);}
+pre.export{background:#2B2B28; color:#F5F2E9; padding:14px; border-radius:10px; overflow-x:auto; font-size:12px; max-height:50vh; overflow-y:auto;}
+@media print{ body *{visibility:hidden;} }
+</style>
+</head>
+<body>
+
+<!-- ============ SIGN-IN GATE ============ -->
+<div id="signin-screen">
+  <div class="signin-card">
+    <img class="logo" src="icon.svg" alt="PackRight">
+    <h1>PackRight</h1>
+    <p class="muted">The no-holds-barred packing app for moving.</p>
+    <div id="signin-config-note"></div>
+    <div id="gsi-button" style="display:flex;justify-content:center;margin:14px 0;"></div>
+    <p class="muted small">Sign-in needs an internet connection the first time.<br>After that, the app works fully offline.</p>
+    <p class="muted small" id="signin-help"></p>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app" hidden>
+  <header class="appbar">
+    <div class="row" style="gap:10px;">
+      <img src="icon.svg" alt="" style="width:34px;height:34px;border-radius:8px;">
+      <h1>PackRight</h1>
+    </div>
+    <div class="row" style="gap:8px;">
+      <span class="countdown-chip" id="hdr-countdown"></span>
+      <span class="plan-badge" id="plan-badge">Free Plan</span>
+    </div>
+  </header>
+  <main id="view"></main>
+  <nav id="bottomnav">
+    <button data-nav="home"><span class="ico">🏠</span>Home</button>
+    <button data-nav="rooms"><span class="ico">🚪</span>Rooms</button>
+    <button data-nav="boxes"><span class="ico">📦</span>Boxes</button>
+    <button data-nav="search"><span class="ico">🔍</span>Search</button>
+    <button data-nav="more"><span class="ico">⋯</span>More</button>
+  </nav>
+  <div id="modal-root"><div class="modal-back" onclick="closeModal()"></div><div class="modal-sheet" id="modal-sheet"></div></div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   PACKRIGHT CONFIG — paste your real values here
+   ---------------------------------------------------------------------
+   1. GOOGLE_CLIENT_ID: create one at https://console.cloud.google.com/
+      → APIs & Services → Credentials → Create Credentials → OAuth client ID
+      (Web application). Add your hosted origin (https://yourdomain.com)
+      to "Authorized JavaScript origins".
+   2. STRIPE_PAYMENT_LINK: create a $3.99/month recurring Payment Link at
+      https://dashboard.stripe.com/payment-links and paste the URL here.
+   ===================================================================== */
+const GOOGLE_CLIENT_ID = "1038297713751-kcri3ujcf0hmq4e38gkdfjh2joju77vo.apps.googleusercontent.com";
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/7sY6oIehf7J8et73lo5Ne00";
+
+/* NOTE on payments (v1): "pro" is tracked via localStorage with a 30-day expiry.
+   Pro = $3.99/month recurring Stripe subscription. When the user confirms
+   payment, pro_expiry is set to now + 30 days. isPro() checks expiry.
+   In production this MUST be verified server-side via Stripe webhooks
+   (customer.subscription.updated/deleted) tied to the signed-in Google user —
+   a client-side flag alone is not secure. This build has no backend. */
+
+/* NOTE on sign-in: Google Identity Services verifies the user in their
+   browser. The ID token is decoded client-side for display only; a real
+   deployment should verify the token on a backend. */
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+"use strict";
+/* ==================== STORAGE & STATE ==================== */
+const LS_KEY='packright_v1', LS_USER='packright_user', LS_PRO='packright_pro';
+const FREE_LIMITS={rooms:1,items:10,boxes:3};
+
+function uid(){ return 'x'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function $(id){ return document.getElementById(id); }
+
+function defaultState(){
+  return {
+    moveDate:'',
+    rooms:[{id:uid(),name:'Home',tasks:[]}],
+    items:[],
+    boxes:[],
+    timeline:[
+      {id:uid(),text:'Book movers / rental truck',daysBefore:30,done:false},
+      {id:uid(),text:'Declutter: Keep / Donate / Sell / Discard',daysBefore:21,done:false},
+      {id:uid(),text:'Change address (post, bank, subscriptions)',daysBefore:14,done:false},
+      {id:uid(),text:'Transfer utilities & internet',daysBefore:14,done:false},
+      {id:uid(),text:'Start packing non-essentials',daysBefore:7,done:false},
+      {id:uid(),text:'Confirm movers / truck booking',daysBefore:7,done:false},
+      {id:uid(),text:'Defrost freezer',daysBefore:3,done:false},
+      {id:uid(),text:'Pack First Night Essentials box',daysBefore:1,done:false},
+      {id:uid(),text:'Charge phone & power bank',daysBefore:1,done:false},
+      {id:uid(),text:'MOVING DAY',daysBefore:0,done:false}
+    ],
+    nextBoxNum:1,
+    essentialsSeeded:false
+  };
+}
+let S;
+function load(){ try{ const raw=localStorage.getItem(LS_KEY); S=raw?JSON.parse(raw):defaultState(); }catch(e){ S=defaultState(); } }
+function save(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(S)); }catch(e){ alert('Storage full! Item photos take space — try smaller photos or delete some.'); } }
+
+function isPro(){ const exp=parseInt(localStorage.getItem('packright_pro_expiry')||'0',10); return exp>Date.now(); }
+function setPro(v){ if(v){ localStorage.setItem('packright_pro_expiry', String(Date.now()+30*24*60*60*1000)); } else { localStorage.removeItem('packright_pro_expiry'); } localStorage.setItem(LS_PRO, v?'1':'0'); refreshPlanBadge(); }
+function currentUser(){ try{ return JSON.parse(localStorage.getItem(LS_USER)||'null'); }catch(e){ return null; } }
+
+/* ==================== AUTH GATE ==================== */
+function googleConfigured(){ return !GOOGLE_CLIENT_ID.startsWith('YOUR_'); }
+
+function showApp(){
+  $('signin-screen').style.display='none';
+  $('app').hidden=false;
+  refreshPlanBadge();
+  go('home');
+}
+function showSignin(){
+  $('app').hidden=true;
+  $('signin-screen').style.display='flex';
+  const note=$('signin-config-note');
+  if(!googleConfigured()){
+    note.innerHTML='<div class="notice err"><b>Setup needed:</b> the app owner must paste a real Google OAuth Client ID into <code>GOOGLE_CLIENT_ID</code> at the top of the script before Sign in with Google will work.</div>';
+    $('signin-help').textContent='Host this file over HTTPS (e.g. GitHub Pages) — Google sign-in does not work from file://.';
+  } else { note.innerHTML=''; }
+  initGoogleButton();
+}
+function initGoogleButton(){
+  const box=$('gsi-button'); box.innerHTML='';
+  if(!googleConfigured()){ box.innerHTML='<p class="muted small">Sign-in unavailable until configured.</p>'; return; }
+  let tries=0;
+  const t=setInterval(()=>{
+    tries++;
+    if(window.google && window.google.accounts){
+      clearInterval(t);
+      try{
+        google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID, callback:onGoogleSignIn});
+        google.accounts.id.renderButton(box,{theme:'outline',size:'large',width:280,text:'signin_with'});
+      }catch(e){ box.innerHTML='<p class="muted small">Could not start Google sign-in.</p>'; }
+    } else if(tries>20){
+      clearInterval(t);
+      box.innerHTML='<p class="muted small">No internet connection — sign-in needs to be online the first time.</p>';
+    }
+  },400);
+}
+function parseJwt(t){
+  const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(escape(atob(b))));
+}
+function onGoogleSignIn(resp){
+  try{
+    const p=parseJwt(resp.credential);
+    localStorage.setItem(LS_USER, JSON.stringify({name:p.name||'',email:p.email||'',picture:p.picture||''}));
+    showApp();
+  }catch(e){ alert('Sign-in failed. Please try again.'); }
+}
+function signOut(){
+  if(!confirm('Sign out of PackRight on this device? Your packing data stays on this device.')) return;
+  localStorage.removeItem(LS_USER);
+  location.reload();
+}
+
+/* ==================== PLAN / LIMITS ==================== */
+function refreshPlanBadge(){
+  const b=$('plan-badge'); if(!b) return;
+  if(isPro()){ b.textContent='Pro Unlocked'; b.classList.add('pro'); }
+  else { b.textContent='Free Plan'; b.classList.remove('pro'); }
+}
+function stripeReady(){ return !STRIPE_PAYMENT_LINK.startsWith('YOUR_'); }
+function openStripe(){
+  if(!stripeReady()){ alert('The $3.99/month payment link is not configured yet. The app owner must paste a real Stripe Payment Link into STRIPE_PAYMENT_LINK at the top of the script.'); return; }
+  window.open(STRIPE_PAYMENT_LINK,'_blank','noopener');
+}
+function showUpgrade(reason){
+  const html=`
+    <h2>Unlock PackRight Pro</h2>
+    <div class="upgrade-box">
+      <div class="price">$3.99 <span class="small muted">/month</span></div>
+      <p><b>${esc(reason)}</b></p>
+      <ul style="padding-left:20px;margin:8px 0;">
+        <li>Unlimited rooms, items &amp; boxes</li>
+        <li>Printable box labels</li>
+        <li>Full data export (JSON)</li>
+        <li>Everything works offline</li>
+      </ul>
+      <button class="btn btn-primary btn-block" onclick="openStripe()">Unlock Full App — $3.99/mo</button>
+      <button class="btn btn-block" style="margin-top:8px" onclick="confirmProPaid()">I've started my $3.99/mo subscription</button>
+      <p class="muted small">v1 unlocks locally on this device after payment. A production build verifies payment server-side via Stripe webhooks.</p>
+    </div>
+    <button class="btn btn-ghost btn-block" onclick="closeModal()">Not now</button>`;
+  openModal(html);
+}
+function confirmProPaid(){
+  if(!confirm('Confirm you started the $3.99/month PackRight Pro subscription via Stripe? Pro will unlock on this device for 30 days.')) return;
+  setPro(true);
+  closeModal();
+  render();
+  alert('PackRight Pro unlocked for 30 days! Enjoy unlimited everything.');
+}
+function guardAdd(kind){
+  if(isPro()) return true;
+  const n={room:S.rooms.length,item:S.items.length,box:S.boxes.length}[kind];
+  const lim=FREE_LIMITS[kind+'s'];
+  if(n>=lim){
+    showUpgrade(`Free plan allows ${lim} ${kind}${lim>1?'s':''}. You're at the limit!`);
+    return false;
+  }
+  return true;
+}
+function requirePro(feature){
+  if(isPro()) return true;
+  showUpgrade(feature+' is a Pro feature.');
+  return false;
+}
+
+/* ==================== MODAL ==================== */
+function openModal(html){ $('modal-sheet').innerHTML=html; $('modal-root').classList.add('open'); }
+function closeModal(){ $('modal-root').classList.remove('open'); }
+
+/* ==================== ROUTER ==================== */
+let VIEW='home', PARAM=null;
+function go(view,param){ VIEW=view; PARAM=param||null; render(); window.scrollTo(0,0);
+  document.querySelectorAll('#bottomnav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===view||(view==='room'&&b.dataset.nav==='rooms')||(view==='box'&&b.dataset.nav==='boxes')));
+}
+document.querySelectorAll('#bottomnav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
+
+function render(){
+  updateHeaderCountdown();
+  const v=$('view');
+  ({home:renderHome,rooms:renderRooms,room:renderRoom,boxes:renderBoxes,box:renderBox,
+    search:renderSearch,more:renderMore,timeline:renderTimeline,essentials:renderEssentials,
+    sort:renderSort,export:renderExport,settings:renderSettings}[VIEW]||renderHome)(v);
+}
+function updateHeaderCountdown(){
+  const el=$('hdr-countdown'); if(!el) return;
+  const d=daysUntil();
+  el.textContent = d==null ? 'Set move date' : (d===0?'Moving day!':d===1?'1 day left':d>0?d+' days left':Math.abs(d)+' days ago');
+}
+function daysUntil(){
+  if(!S.moveDate) return null;
+  const t=new Date(); t.setHours(0,0,0,0);
+  const m=new Date(S.moveDate+'T00:00:00');
+  return Math.round((m-t)/86400000);
+}
+function roomName(id){ const r=S.rooms.find(r=>r.id===id); return r?r.name:'—'; }
+/* ==================== DASHBOARD ==================== */
+function renderHome(v){
+  const d=daysUntil(), pct=overallPct();
+  const sealed=S.boxes.filter(b=>b.sealed).length;
+  const roomsDone=S.rooms.filter(r=>{const it=S.items.filter(i=>i.roomId===r.id);return it.length&&it.every(i=>i.packed);}).length;
+  v.innerHTML=`
+  <div class="card">
+    <div class="row between">
+      <div><h2 style="margin:0;">${d==null?'Set your move date':d<0?'You moved!':d===0?'Moving day is here!':'Moving in '+d+' day'+(d===1?'':'s')}</h2>
+      <p class="muted" style="margin:4px 0 0;">${S.moveDate?esc(S.moveDate):'<a href="#" onclick="go(\'settings\');return false;">Tap to set move date</a>'}</p></div>
+      <div style="font-size:40px;">🚚</div>
+    </div>
+    <div class="progress"><div style="width:${pct}%"></div></div>
+    <div class="row between"><b>${pct}% packed</b><span class="muted small">${packedCount()} of ${S.items.length} items</span></div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="num">${S.items.length}</div><div class="lbl">Items</div></div>
+    <div class="stat"><div class="num">${S.boxes.length}</div><div class="lbl">Boxes (${sealed} sealed)</div></div>
+    <div class="stat"><div class="num">${S.rooms.length}</div><div class="lbl">Rooms (${roomsDone} done)</div></div>
+    <div class="stat"><div class="num">${S.items.filter(i=>i.fragile&&!i.packed).length}</div><div class="lbl">Fragile unpacked</div></div>
+  </div>
+  ${isPro()?'':'<div class="card"><div class="row between"><div><b>Free Plan</b><p class="muted small" style="margin:2px 0;">1 room · 10 items · 3 boxes</p></div><button class="btn btn-primary" onclick="showUpgrade(\'Unlock unlimited everything for $3.99/month.\')">Go Pro $3.99/mo</button></div></div>'}
+  <h3>Rooms progress</h3>
+  ${S.rooms.map(r=>{const p=roomPct(r.id);const n=S.items.filter(i=>i.roomId===r.id).length;
+    return `<div class="card tappable" onclick="go('room','${r.id}')"><div class="row between"><b>${esc(r.name)}</b><span class="muted small">${p}% · ${n} items</span></div><div class="progress thin"><div style="width:${p}%"></div></div></div>`;}).join('')||'<div class="empty">No rooms yet.</div>'}
+  <h3>Quick actions</h3>
+  <div class="row" style="flex-wrap:wrap;gap:8px;">
+    <button class="btn btn-secondary" onclick="openItemForm()">+ Add item</button>
+    <button class="btn btn-secondary" onclick="createBox()">+ New box</button>
+    <button class="btn btn-secondary" onclick="go('essentials')">🌙 First Night box</button>
+  </div>`;
+}
+
+/* ==================== ROOMS ==================== */
+function renderRooms(v){
+  v.innerHTML=`<div class="row between"><h2>Rooms</h2><button class="btn btn-primary" onclick="addRoom()">+ Room</button></div>
+  ${S.rooms.map(r=>{const it=S.items.filter(i=>i.roomId===r.id);const p=roomPct(r.id);
+    return `<div class="card tappable" onclick="go('room','${r.id}')">
+      <div class="row between"><b style="font-size:18px;">${esc(r.name)}</b><span class="muted">${it.length} items · ${p}%</span></div>
+      <div class="progress thin"><div style="width:${p}%"></div></div></div>`;}).join('')}`;
+}
+function addRoom(){
+  if(!guardAdd('room')) return;
+  openModal(`<h2>New room</h2><input id="m-room-name" placeholder="Room name (e.g. Kitchen)" maxlength="40">
+  <button class="btn btn-primary btn-block" onclick="doAddRoom()">Add room</button>
+  <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancel</button>`);
+  setTimeout(()=>$('m-room-name').focus(),100);
+}
+function doAddRoom(){
+  const n=$('m-room-name').value.trim(); if(!n){alert('Enter a room name.');return;}
+  S.rooms.push({id:uid(),name:n,tasks:[]}); save(); closeModal(); render();
+}
+let ROOM_TAB='items';
+function renderRoom(v){
+  const r=S.rooms.find(x=>x.id===PARAM); if(!r){go('rooms');return;}
+  const items=S.items.filter(i=>i.roomId===r.id);
+  const tasks=r.tasks||[];
+  const tDone=tasks.filter(t=>t.done).length;
+  v.innerHTML=`
+  <button class="btn btn-ghost" onclick="go('rooms')">← Rooms</button>
+  <div class="row between"><h2 style="margin:0;">${esc(r.name)}</h2>
+    <div><button class="icon-btn" onclick="renameRoom('${r.id}')" title="Rename">✏️</button>
+    <button class="icon-btn" onclick="deleteRoom('${r.id}')" title="Delete">🗑️</button></div></div>
+  <div class="tabs">
+    <button class="${ROOM_TAB==='items'?'active':''}" onclick="ROOM_TAB='items';render()">Items (${items.length})</button>
+    <button class="${ROOM_TAB==='checklist'?'active':''}" onclick="ROOM_TAB='checklist';render()">Checklist (${tDone}/${tasks.length})</button>
+  </div>
+  <div id="room-tab-body"></div>
+  <button class="fab" onclick="${ROOM_TAB==='items'?`openItemForm('${r.id}')`:`addTask('${r.id}')`}">+</button>`;
+  const b=$('room-tab-body');
+  if(ROOM_TAB==='items'){
+    b.innerHTML=items.length?items.map(itemRow).join(''):'<div class="empty">No items yet.<br>Tap + to add the first one.</div>';
+  } else {
+    b.innerHTML=(tasks.map(t=>`
+      <div class="list-item"><input type="checkbox" class="checkbox" ${t.done?'checked':''} onchange="toggleTask('${r.id}','${t.id}')">
+      <span class="grow" style="${t.done?'text-decoration:line-through;color:var(--muted);':''}">${esc(t.text)}</span>
+      <button class="icon-btn" onclick="delTask('${r.id}','${t.id}')">✕</button></div>`).join('')||'<div class="empty">No checklist tasks yet.</div>')+
+      `<button class="btn btn-secondary btn-block" onclick="addTask('${r.id}')">+ Add task</button>`;
+  }
+}
+function renameRoom(id){ const r=S.rooms.find(x=>x.id===id); const n=prompt('Room name:',r.name); if(n&&n.trim()){r.name=n.trim();save();render();} }
+function deleteRoom(id){
+  const r=S.rooms.find(x=>x.id===id);
+  if(!confirm(`Delete room "${r.name}" and ALL its items?`)) return;
+  S.items=S.items.filter(i=>i.roomId!==id);
+  S.rooms=S.rooms.filter(x=>x.id!==id); save(); go('rooms');
+}
+function addTask(roomId){
+  openModal(`<h2>New checklist task</h2><input id="m-task" placeholder="e.g. Defrost freezer" maxlength="80">
+  <button class="btn btn-primary btn-block" onclick="doAddTask('${roomId}')">Add task</button>
+  <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancel</button>`);
+}
+function doAddTask(roomId){
+  const t=$('m-task').value.trim(); if(!t)return;
+  S.rooms.find(r=>r.id===roomId).tasks.push({id:uid(),text:t,done:false});
+  save(); closeModal(); render();
+}
+function toggleTask(roomId,taskId){ const t=S.rooms.find(r=>r.id===roomId).tasks.find(t=>t.id===taskId); t.done=!t.done; save(); render(); }
+function delTask(roomId,taskId){ const r=S.rooms.find(r=>r.id===roomId); r.tasks=r.tasks.filter(t=>t.id!==taskId); save(); render(); }
+
+/* ==================== ITEMS ==================== */
+function itemRow(i){
+  const b=i.boxId?boxById(i.boxId):null;
+  return `<div class="card" style="padding:10px 12px;">
+    <div class="row">
+      <input type="checkbox" class="checkbox" ${i.packed?'checked':''} onchange="togglePacked('${i.id}')" title="Packed">
+      ${i.photo?`<img class="thumb" src="${i.photo}" alt="">`:`<div class="thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>`}
+      <div class="grow" onclick="openItemForm('${i.roomId}','${i.id}')" style="cursor:pointer;">
+        <b>${esc(i.name)}</b>
+        <div>${i.fragile?'<span class="badge fragile">⚠ FRAGILE</span>':''}<span class="badge ${i.packed?'packed':'unpacked'}">${i.packed?'Packed':'Unpacked'}</span>${i.sort?`<span class="badge ${i.sort}">${i.sort[0].toUpperCase()+i.sort.slice(1)}</span>`:''}${b?`<span class="badge">Box ${b.number}</span>`:'<span class="badge unpacked">Unboxed</span>'}</div>
+        <div class="muted small">${esc(i.category||'')}${i.value?' · $'+esc(i.value):''}</div>
+      </div>
+      <button class="icon-btn" onclick="deleteItem('${i.id}')">🗑️</button>
+    </div>
+    <div class="row" style="margin-top:6px;">
+      <span class="muted small">Box:</span>
+      <select style="margin:0;" onchange="assignBox('${i.id}',this.value)">
+        <option value="">Unboxed</option>
+        ${S.boxes.map(x=>`<option value="${x.id}" ${i.boxId===x.id?'selected':''}>Box ${x.number}${x.label?' — '+esc(x.label):''}</option>`).join('')}
+      </select>
+    </div>
+  </div>`;
+}
+function togglePacked(id){ const i=S.items.find(x=>x.id===id); i.packed=!i.packed; save(); render(); }
+function deleteItem(id){ if(!confirm('Delete this item?'))return; S.items=S.items.filter(x=>x.id!==id); save(); render(); }
+function assignBox(itemId,boxId){ const i=S.items.find(x=>x.id===itemId); i.boxId=boxId||null; save(); render(); }
+
+function openItemForm(roomId,editId){
+  const it=editId?S.items.find(x=>x.id===editId):null;
+  if(!it && !guardAdd('item')) return;
+  const rooms=S.rooms.map(r=>`<option value="${r.id}" ${(it?it.roomId:roomId)===r.id?'selected':''}>${esc(r.name)}</option>`).join('');
+  openModal(`
+  <h2>${it?'Edit item':'Add item'}</h2>
+  <label>Name<input id="f-name" value="${esc(it?it.name:'')}" placeholder="e.g. Dinner plates" maxlength="80"></label>
+  <label>Room<select id="f-room">${rooms}</select></label>
+  <div class="row">
+    <div class="grow"><label>Category<select id="f-cat">${['Kitchen','Bedroom','Bathroom','Living Room','Office','Garage','Clothing','Electronics','Books','Decor','Tools','Misc'].map(c=>`<option ${it&&it.category===c?'selected':''}>${c}</option>`).join('')}</select></label></div>
+    <div class="grow"><label>Condition<select id="f-cond">${['Excellent','Good','Fair','Poor'].map(c=>`<option ${it&&it.condition===c?'selected':''}>${c}</option>`).join('')}</select></label></div>
+  </div>
+  <label>Est. value ($)<input id="f-value" type="number" min="0" step="1" value="${esc(it?it.value||'':'')}"></label>
+  <label>Notes<textarea id="f-notes" rows="2" placeholder="Serial numbers, where it goes…">${esc(it?it.notes||'':'')}</textarea></label>
+  <div class="row" style="margin:8px 0;">
+    <label class="row" style="margin:0;"><input type="checkbox" id="f-fragile" class="checkbox" ${it&&it.fragile?'checked':''}> <span>Fragile — handle with care</span></label>
+  </div>
+  <label>Sort<select id="f-sort"><option value="">Unsorted</option>${['keep','donate','sell','discard'].map(s=>`<option value="${s}" ${it&&it.sort===s?'selected':''}>${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}</select></label>
+  <label>Photo<input type="file" id="f-photo" accept="image/*"></label>
+  ${it&&it.photo?`<img src="${it.photo}" style="width:100%;border-radius:10px;margin:6px 0;">`:''}
+  <button class="btn btn-primary btn-block" onclick="saveItem('${editId||''}')">Save item</button>
+  <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancel</button>`);
+}
+function processPhoto(file,cb){
+  if(!file){cb(null);return;}
+  const img=new Image();
+  img.onload=()=>{
+    const max=600; let w=img.width,h=img.height;
+    if(w>max||h>max){ const r=Math.min(max/w,max/h); w=Math.round(w*r); h=Math.round(h*r); }
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.6));
+    URL.revokeObjectURL(img.src);
+  };
+  img.onerror=()=>cb(null);
+  img.src=URL.createObjectURL(file);
+}
+function saveItem(editId){
+  const name=$('f-name').value.trim(); if(!name){alert('Give the item a name.');return;}
+  const data={
+    name, roomId:$('f-room').value, category:$('f-cat').value, condition:$('f-cond').value,
+    value:$('f-value').value, notes:$('f-notes').value.trim(),
+    fragile:$('f-fragile').checked, sort:$('f-sort').value||null
+  };
+  const file=$('f-photo').files[0];
+  const done=(photo)=>{
+    if(editId){
+      const it=S.items.find(x=>x.id===editId); Object.assign(it,data); if(photo)it.photo=photo;
+    } else {
+      S.items.push(Object.assign({id:uid(),packed:false,photo:photo,boxId:null},data));
+    }
+    save(); closeModal(); render();
+  };
+  if(file) processPhoto(file,done); else done(editId?S.items.find(x=>x.id===editId).photo:null);
+}
+/* ---- shared helpers (used by later chunks) ---- */
+function boxById(id){ return S.boxes.find(b=>b.id===id); }
+function boxLabel(b){ return 'Box '+b.number+(b.label?' — '+b.label:''); }
+function itemsInBox(boxId){ return S.items.filter(i=>i.boxId===boxId); }
+function packedCount(){ return S.items.filter(i=>i.packed).length; }
+function overallPct(){ return S.items.length?Math.round(packedCount()/S.items.length*100):0; }
+function roomPct(roomId){ const it=S.items.filter(i=>i.roomId===roomId); return it.length?Math.round(it.filter(i=>i.packed).length/it.length*100):0; }
+
+/* ==================== BOXES ==================== */
+function renderBoxes(v){
+  v.innerHTML=`<div class="row between"><h2>Boxes</h2><button class="btn btn-primary" onclick="createBox()">+ New box</button></div>
+  ${S.boxes.map(b=>{
+    const it=itemsInBox(b.id); const frag=it.some(i=>i.fragile);
+    return `<div class="card tappable" onclick="go('box','${b.id}')">
+      <div class="row between"><b style="font-size:18px;">📦 ${esc(boxLabel(b))}</b>
+      <span>${b.sealed?'<span class="badge sealed">SEALED</span>':'<span class="badge unpacked">Open</span>'}${b.essentials?'<span class="badge ess">🌙 First Night</span>':''}${frag?'<span class="badge fragile">⚠ FRAGILE</span>':''}</span></div>
+      <div class="muted small">→ ${esc(roomName(b.destRoomId))} · ${it.length} item${it.length===1?'':'s'}</div>
+    </div>`;}).join('')||'<div class="empty">No boxes yet.<br>Tap + New box to create Box 1.</div>'}`;
+}
+function createBox(essentials){
+  if(!guardAdd('box')) return;
+  const b={id:uid(),number:S.nextBoxNum++,label:essentials?'First Night Essentials':'',destRoomId:S.rooms[0]?S.rooms[0].id:'',sealed:false,essentials:!!essentials};
+  S.boxes.push(b); save(); render();
+  if(!essentials) go('box',b.id);
+}
+function ensureEssentialsBox(){
+  let b=S.boxes.find(x=>x.essentials);
+  if(!b){
+    if(!isPro() && S.boxes.length>=FREE_LIMITS.boxes){ showUpgrade('Free plan allows 3 boxes. Upgrade to add your First Night Essentials box.'); return null; }
+    b={id:uid(),number:S.nextBoxNum++,label:'First Night Essentials',destRoomId:S.rooms[0]?S.rooms[0].id:'',sealed:false,essentials:true}; S.boxes.push(b); save();
+  }
+  return b;
+}
+function renderBox(v){
+  const b=boxById(PARAM); if(!b){go('boxes');return;}
+  const it=itemsInBox(b.id); const frag=it.some(i=>i.fragile);
+  v.innerHTML=`
+  <button class="btn btn-ghost" onclick="go('boxes')">← Boxes</button>
+  <div class="row between"><h2 style="margin:0;">${esc(boxLabel(b))}</h2>
+    <div><button class="icon-btn" onclick="renameBox('${b.id}')" title="Rename">✏️</button>
+    <button class="icon-btn" onclick="deleteBox('${b.id}')" title="Delete">🗑️</button></div></div>
+  <div>${b.sealed?'<span class="badge sealed">SEALED</span>':'<span class="badge unpacked">Open</span>'}${b.essentials?'<span class="badge ess">🌙 First Night Essentials</span>':''}${frag?'<span class="badge fragile">⚠ CONTAINS FRAGILE</span>':''}</div>
+  <div class="card">
+    <label>Destination room<select onchange="setBoxDest('${b.id}',this.value)">
+      ${S.rooms.map(r=>`<option value="${r.id}" ${b.destRoomId===r.id?'selected':''}>${esc(r.name)}</option>`).join('')}
+    </select></label>
+    <label class="row" style="margin:8px 0;"><input type="checkbox" class="checkbox" ${b.sealed?'checked':''} onchange="toggleSealed('${b.id}')"> <span><b>Sealed</b> — box is packed &amp; taped shut</span></label>
+  </div>
+  <div class="row between"><h3>Contents (${it.length})</h3><button class="btn btn-secondary" onclick="pickItems('${b.id}')">+ Add items</button></div>
+  ${it.map(i=>`<div class="list-item">
+      <input type="checkbox" class="checkbox" ${i.packed?'checked':''} onchange="togglePacked('${i.id}')">
+      <div class="grow"><b>${esc(i.name)}</b> <span class="muted small">· ${esc(roomName(i.roomId))}</span>${i.fragile?' <span class="badge fragile">⚠</span>':''}</div>
+      <button class="icon-btn" onclick="assignBox('${i.id}','')">✕</button>
+    </div>`).join('')||'<div class="empty">Empty box. Add items from your rooms.</div>'}
+  <button class="btn btn-primary btn-block" onclick="printLabel('${b.id}')">🖨️ Print box label${isPro()?'':' (Pro)'}</button>`;
+}
+function renameBox(id){ const b=boxById(id); const n=prompt('Box label (optional):',b.label||''); if(n!==null){b.label=n.trim();save();render();} }
+function deleteBox(id){
+  if(!confirm('Delete this box? Its items become unboxed (not deleted).'))return;
+  S.items.forEach(i=>{if(i.boxId===id)i.boxId=null;});
+  S.boxes=S.boxes.filter(b=>b.id!==id); save(); go('boxes');
+}
+function setBoxDest(id,roomId){ boxById(id).destRoomId=roomId; save(); }
+function toggleSealed(id){ const b=boxById(id); b.sealed=!b.sealed; save(); render(); }
+function pickItems(boxId){
+  const avail=S.items.filter(i=>!i.boxId);
+  if(!avail.length){alert('No unboxed items. Add items to a room first.');return;}
+  openModal(`<h2>Add to ${esc(boxLabel(boxById(boxId)))}</h2>
+  ${avail.map(i=>`<label class="row" style="font-weight:normal;"><input type="checkbox" class="checkbox" value="${i.id}"> <span class="grow">${esc(i.name)} <span class="muted small">· ${esc(roomName(i.roomId))}</span></span></label>`).join('')}
+  <button class="btn btn-primary btn-block" onclick="doPickItems('${boxId}')">Add selected</button>
+  <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancel</button>`);
+}
+function doPickItems(boxId){
+  document.querySelectorAll('#modal-sheet input[type=checkbox]:checked').forEach(c=>{
+    const it=S.items.find(x=>x.id===c.value); if(it) it.boxId=boxId;
+  });
+  save(); closeModal(); render();
+}
+
+/* ==================== PRINTABLE LABELS (Pro) ==================== */
+function printLabel(boxId){
+  if(!requirePro('Printable box labels')) return;
+  const b=boxById(boxId); const it=itemsInBox(boxId);
+  const frag=it.some(i=>i.fragile);
+  const w=window.open('','_blank','width=600,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><title>Box ${b.number} label</title><style>
+    body{font-family:Arial,sans-serif;padding:24px;} .lbl{border:4px solid #000;border-radius:12px;padding:24px;max-width:480px;}
+    .num{font-size:72px;font-weight:900;} .dest{font-size:34px;font-weight:700;margin:8px 0;}
+    .meta{font-size:18px;margin:6px 0;} .frag{background:#000;color:#fff;font-size:30px;font-weight:900;text-align:center;padding:10px;margin:12px 0;border-radius:8px;}
+    ul{font-size:16px;} @media print{.noprint{display:none;}}</style></head><body>
+    <div class="lbl">
+      <div class="num">BOX ${b.number}</div>
+      ${b.label?`<div class="dest">${esc(b.label)}</div>`:''}
+      <div class="dest">→ ${esc(roomName(b.destRoomId)).toUpperCase()}</div>
+      ${frag?'<div class="frag">⚠ FRAGILE — HANDLE WITH CARE ⚠</div>':''}
+      <div class="meta"><b>${it.length}</b> item${it.length===1?'':'s'} · ${b.sealed?'SEALED':'OPEN'}</div>
+      <ul>${it.map(i=>`<li>${esc(i.name)}${i.fragile?' ⚠':''}</li>`).join('')}</ul>
+    </div>
+    <p class="noprint"><button onclick="window.print()" style="font-size:18px;padding:12px 24px;">Print</button></p>
+    <script>window.onload=()=>window.print();<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+/* ==================== SEARCH ==================== */
+let SEARCH_Q='';
+function renderSearch(v){
+  v.innerHTML=`<h2>Search</h2>
+  <input id="q" placeholder="Search items, boxes, rooms…" value="${esc(SEARCH_Q)}" oninput="SEARCH_Q=this.value;renderSearchResults()">
+  <div id="search-results"></div>`;
+  renderSearchResults();
+  setTimeout(()=>{const q=$('q'); if(q){q.focus(); q.setSelectionRange(q.value.length,q.value.length);}},50);
+}
+function renderSearchResults(){
+  const el=$('search-results'); if(!el) return;
+  const q=SEARCH_Q.trim().toLowerCase();
+  if(!q){el.innerHTML='<div class="empty">Type to search everything.</div>';return;}
+  const items=S.items.filter(i=>(i.name+' '+(i.notes||'')+' '+(i.category||'')+' '+roomName(i.roomId)).toLowerCase().includes(q));
+  const boxes=S.boxes.filter(b=>('box '+b.number+' '+(b.label||'')+' '+roomName(b.destRoomId)).toLowerCase().includes(q));
+  el.innerHTML=`<h3>Items (${items.length})</h3>`+(items.map(itemRow).join('')||'<p class="muted">None.</p>')+
+    `<h3>Boxes (${boxes.length})</h3>`+(boxes.map(b=>`<div class="card tappable" onclick="go('box','${b.id}')"><b>📦 ${esc(boxLabel(b))}</b><div class="muted small">→ ${esc(roomName(b.destRoomId))} · ${itemsInBox(b.id).length} items</div></div>`).join('')||'<p class="muted">None.</p>');
+}
+
+/* ==================== MORE MENU ==================== */
+function renderMore(v){
+  const u=currentUser();
+  const menu=[
+    ['🗓️','Moving timeline','Countdown & key tasks',`go('timeline')`],
+    ['🌙','First Night Essentials','Toiletries, chargers, must-haves',`go('essentials')`],
+    ['🔀','Sort & declutter','Keep / Donate / Sell / Discard',`go('sort')`],
+    ['📤','Export','Backup JSON & printable inventory',`go('export')`],
+    ['⚙️','Settings','Move date, sign-in, Pro, reset',`go('settings')`],
+  ];
+  v.innerHTML=`<h2>More</h2>
+  ${u?`<div class="card"><div class="row">${u.picture?`<img src="${u.picture}" style="width:44px;height:44px;border-radius:50%;">`:''}<div class="grow"><b>${esc(u.name)}</b><div class="muted small">${esc(u.email)}</div></div></div></div>`:''}
+  ${menu.map(m=>`<div class="card tappable" onclick="${m[3]}"><div class="row"><span style="font-size:26px;">${m[0]}</span><div class="grow"><b>${m[1]}</b><div class="muted small">${m[2]}</div></div><span>›</span></div></div>`).join('')}`;
+}
+
+/* ==================== TIMELINE ==================== */
+function renderTimeline(v){
+  const d=daysUntil();
+  const sorted=[...S.timeline].sort((a,b)=>b.daysBefore-a.daysBefore);
+  v.innerHTML=`<button class="btn btn-ghost" onclick="go('more')">← More</button><h2>Moving timeline</h2>
+  <div class="card"><b>${d==null?'Set a move date in Settings to see dates.':d<0?'You moved '+Math.abs(d)+' days ago!':d===0?'TODAY IS MOVING DAY! 🎉':d+' days to go'}</b></div>
+  ${sorted.map(t=>{
+    let dateStr='';
+    if(S.moveDate){ const dt=new Date(S.moveDate+'T00:00:00'); dt.setDate(dt.getDate()-t.daysBefore); dateStr=dt.toLocaleDateString(); }
+    return `<div class="list-item"><input type="checkbox" class="checkbox" ${t.done?'checked':''} onchange="toggleTl('${t.id}')">
+      <div class="grow" style="${t.done?'text-decoration:line-through;color:var(--muted);':''}"><b>${esc(t.text)}</b><div class="muted small">${t.daysBefore===0?'Moving day':t.daysBefore+' days before'}${dateStr?' · '+dateStr:''}</div></div>
+      <button class="icon-btn" onclick="delTl('${t.id}')">✕</button></div>`;}).join('')}
+  <button class="btn btn-secondary btn-block" onclick="addTl()">+ Add task</button>`;
+}
+function toggleTl(id){ const t=S.timeline.find(x=>x.id===id); t.done=!t.done; save(); render(); }
+function delTl(id){ S.timeline=S.timeline.filter(x=>x.id!==id); save(); render(); }
+function addTl(){
+  openModal(`<h2>New timeline task</h2><input id="m-tl-text" placeholder="Task" maxlength="80">
+  <label>Days before move<input id="m-tl-days" type="number" min="0" value="7"></label>
+  <button class="btn btn-primary btn-block" onclick="doAddTl()">Add</button>
+  <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancel</button>`);
+}
+function doAddTl(){
+  const t=$('m-tl-text').value.trim(); if(!t)return;
+  S.timeline.push({id:uid(),text:t,daysBefore:parseInt($('m-tl-days').value)||0,done:false});
+  save(); closeModal(); render();
+}
+
+/* ==================== ESSENTIALS ==================== */
+const ESSENTIAL_SUGGESTIONS=['Toiletries & medications','Phone chargers & power bank','Change of clothes','Toilet paper & paper towels','Snacks & water bottles','Bedding & pillows','Basic toolkit & flashlight','Coffee maker & mugs','Important documents','Pet food & supplies'];
+function renderEssentials(v){
+  const b=ensureEssentialsBox(); if(!b){ v.innerHTML='<button class="btn btn-ghost" onclick="go(\'more\')">← More</button><div class="empty">Box limit reached on the Free plan.<br>Upgrade to Pro to add your First Night Essentials box.</div>'; return; }
+  const it=itemsInBox(b.id);
+  const have=new Set(it.map(i=>i.name.toLowerCase()));
+  v.innerHTML=`<button class="btn btn-ghost" onclick="go('more')">← More</button>
+  <h2>🌙 First Night Essentials</h2>
+  <p class="muted">The one box you open first. Keep it with you, not in the truck.</p>
+  <div class="card tappable" onclick="go('box','${b.id}')"><div class="row between"><b>📦 ${esc(boxLabel(b))}</b><span class="muted">${it.length} items</span></div></div>
+  <h3>In the box</h3>
+  ${it.map(i=>`<div class="list-item"><input type="checkbox" class="checkbox" ${i.packed?'checked':''} onchange="togglePacked('${i.id}')"><div class="grow"><b>${esc(i.name)}</b></div><button class="icon-btn" onclick="assignBox('${i.id}','')">✕</button></div>`).join('')||'<div class="empty">Nothing yet — add from the suggestions.</div>'}
+  <h3>Quick-add suggestions</h3>
+  ${ESSENTIAL_SUGGESTIONS.filter(s=>!have.has(s.toLowerCase())).map(s=>`<div class="list-item"><div class="grow">${esc(s)}</div><button class="btn btn-secondary" onclick="addEssential('${esc(s)}')">+ Add</button></div>`).join('')||'<p class="muted">All suggestions added. 🎉</p>'}
+  <button class="btn btn-primary btn-block" onclick="printLabel('${b.id}')">🖨️ Print essentials label${isPro()?'':' (Pro)'}</button>`;
+}
+function addEssential(name){
+  if(!guardAdd('item')) return;
+  const b=ensureEssentialsBox(); if(!b) return;
+  S.items.push({id:uid(),name:name,roomId:S.rooms[0].id,category:'Essentials',condition:'Good',value:'',notes:'',fragile:false,packed:false,photo:null,sort:null,boxId:b.id});
+  save(); render();
+}
+
+/* ==================== SORT & DECLUTTER ==================== */
+let SORT_F='all';
+function renderSort(v){
+  const counts={all:S.items.length,unsorted:0,keep:0,donate:0,sell:0,discard:0};
+  S.items.forEach(i=>{counts[i.sort||'unsorted']++;});
+  const list=S.items.filter(i=>SORT_F==='all'||(i.sort||'unsorted')===SORT_F);
+  v.innerHTML=`<button class="btn btn-ghost" onclick="go('more')">← More</button>
+  <h2>Sort & declutter</h2><p class="muted">Decide every item's fate before you pack it.</p>
+  <div class="chips">${['all','unsorted','keep','donate','sell','discard'].map(f=>`<button class="${SORT_F===f?'active':''}" onclick="SORT_F='${f}';render()">${f[0].toUpperCase()+f.slice(1)} (${counts[f]})</button>`).join('')}</div>
+  ${list.map(i=>`<div class="card" style="padding:10px 12px;"><b>${esc(i.name)}</b> <span class="muted small">· ${esc(roomName(i.roomId))}</span>
+    <div class="sort-btns">${['keep','donate','sell','discard'].map(s=>`<button class="${i.sort===s?'on':''}" onclick="setSort('${i.id}','${s}')">${s[0].toUpperCase()+s.slice(1)}</button>`).join('')}
+    ${i.sort?`<button onclick="setSort('${i.id}','')">Clear</button>`:''}</div></div>`).join('')||'<div class="empty">Nothing here.</div>'}`;
+}
+function setSort(id,val){ const i=S.items.find(x=>x.id===id); i.sort=val||null; save(); render(); }
+
+/* ==================== EXPORT ==================== */
+function renderExport(v){
+  v.innerHTML=`<button class="btn btn-ghost" onclick="go('more')">← More</button><h2>Export</h2>
+  <div class="card"><h3>Backup (JSON) ${isPro()?'':'🔒 Pro'}</h3>
+    <p class="muted small">Full backup of rooms, items, boxes, checklists & timeline. Import-ready.</p>
+    <button class="btn btn-primary btn-block" onclick="exportJSON()">Download backup JSON${isPro()?'':' (Pro)'}</button></div>
+  <div class="card"><h3>Box inventory (printable)</h3>
+    <p class="muted small">Plain-text inventory of every box and unboxed items.</p>
+    <button class="btn btn-secondary btn-block" onclick="showInventory()">View / print inventory</button></div>
+  <div id="inv-out"></div>`;
+}
+function exportJSON(){
+  if(!requirePro('JSON data export')) return;
+  const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),app:'PackRight',data:S},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='packright-backup-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+function inventoryText(){
+  let t='PACKRIGHT MOVING INVENTORY\n'+new Date().toLocaleString()+'\n'+'='.repeat(40)+'\n\n';
+  S.boxes.forEach(b=>{
+    const it=itemsInBox(b.id);
+    t+=`BOX ${b.number}${b.label?' — '+b.label:''} → ${roomName(b.destRoomId)} [${b.sealed?'SEALED':'OPEN'}]${it.some(i=>i.fragile)?' ⚠FRAGILE':''}\n`;
+    it.forEach(i=>{t+=`  [${i.packed?'x':' '}] ${i.name}${i.fragile?' (FRAGILE)':''}${i.value?' — $'+i.value:''}${i.notes?' — '+i.notes:''}\n`;});
+    t+='\n';
+  });
+  const un=S.items.filter(i=>!i.boxId);
+  if(un.length){ t+='UNBOXED ITEMS\n'; un.forEach(i=>{t+=`  [${i.packed?'x':' '}] ${i.name} (${roomName(i.roomId)})\n`;}); }
+  t+=`\nTotals: ${S.items.length} items, ${packedCount()} packed, ${S.boxes.length} boxes.\n`;
+  return t;
+}
+function showInventory(){
+  $('inv-out').innerHTML=`<div class="card"><pre class="export">${esc(inventoryText())}</pre>
+  <div class="row"><button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+  <button class="btn btn-secondary" onclick="downloadInventory()">Download .txt</button></div></div>`;
+}
+function printInventory(){
+  const w=window.open('','_blank','width=700,height=800');
+  w.document.write(`<html><head><title>PackRight inventory</title></head><body><pre style="font-size:14px;">${esc(inventoryText())}</pre><script>window.onload=()=>window.print();<\/script></body></html>`);
+  w.document.close();
+}
+function downloadInventory(){
+  const blob=new Blob([inventoryText()],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='packright-inventory.txt'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+/* ==================== SETTINGS ==================== */
+function renderSettings(v){
+  const u=currentUser();
+  v.innerHTML=`<button class="btn btn-ghost" onclick="go('more')">← More</button><h2>Settings</h2>
+  <div class="card"><h3>Move date</h3>
+    <input type="date" id="set-date" value="${esc(S.moveDate||'')}" onchange="S.moveDate=this.value;save();updateHeaderCountdown();">
+  </div>
+  <div class="card"><h3>Plan ${isPro()?'<span class="badge sealed">PRO UNLOCKED</span>':'<span class="badge unpacked">FREE PLAN</span>'}</h3>
+    <p class="muted small">Free: 1 room · 10 items · 3 boxes · basic checklists.<br>Pro ($3.99/mo): unlimited everything, printable labels, JSON export.</p>
+    ${isPro()
+      ? `<button class="btn btn-ghost btn-block" onclick="setPro(false)">Revert to Free (testing)</button>`
+      : `<button class="btn btn-primary btn-block" onclick="showUpgrade('Unlock unlimited everything for $3.99/month.')">Unlock Full App — $3.99/mo</button>
+         <button class="btn btn-ghost btn-block" onclick="setPro(true);render()">Mark Pro as active (testing)</button>`}
+  </div>
+  <div class="card"><h3>Signed in</h3>
+    ${u?`<div class="row">${u.picture?`<img src="${u.picture}" style="width:44px;height:44px;border-radius:50%;">`:''}<div class="grow"><b>${esc(u.name)}</b><div class="muted small">${esc(u.email)}</div></div></div>
+    <button class="btn btn-secondary btn-block" onclick="signOut()">Sign out</button>`:'<p class="muted">Not signed in.</p>'}
+  </div>
+  <div class="card"><h3>Data</h3>
+    <p class="muted small">Everything is stored on this device only. No account, no cloud.</p>
+    <button class="btn btn-danger btn-block" onclick="resetAll()">Delete ALL packing data</button>
+  </div>
+  <div class="card"><h3>About</h3>
+    <p class="muted small">PackRight v1. Works fully offline after first load. Install it from your browser menu → "Add to Home screen" / "Install app".</p>
+  </div>`;
+}
+function resetAll(){
+  if(!confirm('Delete ALL rooms, items, boxes and checklists? This cannot be undone.'))return;
+  if(!confirm('Really wipe everything?'))return;
+  localStorage.removeItem(LS_KEY); load(); go('home');
+}
+
+/* ==================== INIT ==================== */
+load();
+if(currentUser()){ showApp(); } else { showSignin(); }
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
