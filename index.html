@@ -821,7 +821,7 @@ function renderSettings(v){
     <input type="date" id="set-date" value="${esc(S.moveDate||'')}" onchange="S.moveDate=this.value;save();updateHeaderCountdown();">
   </div>
   <div class="card"><h3>Plan ${isPro()?'<span class="badge sealed">PRO UNLOCKED</span>':'<span class="badge unpacked">FREE PLAN</span>'}</h3>
-    <p class="muted small">Free: 1 room · 10 items · 3 boxes · basic checklists.<br>Pro ($3.99/mo): unlimited everything, printable labels, JSON export.</p>
+    <p class="muted small">Free: 1 room · 10 items · 3 boxes · basic checklists · ads.<br>Pro ($3.99/mo): unlimited everything, printable labels, JSON export, no ads.</p>
     ${isPro()
       ? `<button class="btn btn-ghost btn-block" onclick="setPro(false)">Revert to Free (testing)</button>`
       : `<button class="btn btn-primary btn-block" onclick="showUpgrade('Unlock unlimited everything for $3.99/month.')">Unlock Full App — $3.99/mo</button>
@@ -844,6 +844,20 @@ function resetAll(){
   if(!confirm('Really wipe everything?'))return;
   localStorage.removeItem(LS_KEY); load(); go('home');
 }
+
+/* ==================== ADS (Free plan only) ==================== */
+/* Google AdSense Auto ads - loaded only for Free users. Pro users never load the ad script. */
+(function(){
+  try{
+    var exp = parseInt(localStorage.getItem('packright_pro_expiry')||'0',10);
+    if(exp > Date.now()) return; /* Pro: no ads */
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5167099168803263';
+    s.crossOrigin = 'anonymous';
+    document.head.appendChild(s);
+  }catch(e){}
+})();
 
 /* ==================== INIT ==================== */
 load();

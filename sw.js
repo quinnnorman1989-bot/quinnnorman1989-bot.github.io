@@ -1,4 +1,4 @@
-const CACHE = 'packright-v2';
+const CACHE = 'packright-v3';
 const ASSETS = [
   './',
   './index.html',
