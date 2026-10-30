@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Off-Grid Living Toolkit — Firewood, Solar, Generator, Propane &amp; Water Calculators</title>
+<meta name="description" content="Free off-grid living toolkit: firewood calculator, cabin solar and battery estimator, generator runtime, propane usage, and water supply calculators, plus winterizing checklists for camp and cabin life.">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5167099168803263" crossorigin="anonymous"></script>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#1c1f1a;color:#e8e6df;line-height:1.6}
+header{background:#2f3a26;padding:2rem 1rem;text-align:center}
+header h1{margin:0 0 .5rem;color:#f5a623}
+header p{max-width:700px;margin:0 auto;color:#cfd4c5}
+main{max-width:900px;margin:0 auto;padding:1rem}
+.tool{background:#2a2e28;border:1px solid #3d4436;border-radius:10px;padding:1.2rem;margin:1.2rem 0}
+.tool h2{margin-top:0;color:#f5a623}
+label{display:block;margin:.6rem 0 .2rem;font-weight:600}
+input,select{width:100%;padding:.55rem;border-radius:6px;border:1px solid #555;background:#1c1f1a;color:#fff;font-size:1rem;box-sizing:border-box}
+button{background:#f5a623;color:#111;border:0;padding:.7rem 1.2rem;border-radius:6px;font-weight:700;cursor:pointer;margin-top:.8rem}
+.result{background:#1c1f1a;border:1px solid #3d4436;border-radius:6px;padding:1rem;margin-top:1rem;white-space:pre-line}
+.ad{border:1px dashed #666;border-radius:6px;padding:1rem;text-align:center;color:#999;margin:1.2rem 0}
+.note{font-size:.9rem;color:#b9bfae}
+footer{max-width:900px;margin:0 auto;padding:1rem;color:#b9bfae;font-size:.9rem}
+a{color:#f5a623}
+</style>
+</head>
+<body>
+<header>
+<h1>Off-Grid Living Toolkit</h1>
+<p>Free calculators and checklists for camp and cabin life — firewood, solar, generator fuel, propane, and water. Built from real off-grid living, not guesswork. All figures are estimates for planning, not guarantees.</p>
+</header>
+<main>
+
+<div class="ad">
+<!-- Ad space: Google AdSense. Ads will only serve after this site is added to AdSense and approved. -->
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5167099168803263" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section>
+<h2>Winterizing checklist — the short version</h2>
+<ul>
+<li><strong>Water:</strong> drain what can freeze, insulate exposed lines, and know how many days your totes actually last (calculator below).</li>
+<li><strong>Heat:</strong> seasoned wood only, chimney cleaned, a backup heat source that does not depend on the same fuel.</li>
+<li><strong>Power:</strong> generator serviced, fuel stabilised, batteries kept charged — a dead battery in -20 is a different problem than in summer.</li>
+<li><strong>Propane:</strong> any gas install or change must be done by a licensed gas fitter. Check local rules before you touch fittings.</li>
+<li><strong>Access:</strong> road, path, and a way to get help if a vehicle will not start. Winter makes small problems big.</li>
+</ul>
+</section>
+
+<div class="tool" id="firewood">
+<h2>1. Firewood Calculator</h2>
+<label>Stack length (ft) <input id="fwL" type="number" value="8" step="0.1"></label>
+<label>Stack height (ft) <input id="fwH" type="number" value="4" step="0.1"></label>
+<label>Log length (inches) <input id="fwLen" type="number" value="16" step="1"></label>
+<label>Species
+<select id="fwSp">
+<option value="15.5|2400">Spruce — 15.5M BTU/cord</option>
+<option value="15|2300">Balsam fir — 15M BTU/cord</option>
+<option value="17|2700">Jack pine — 17M BTU/cord</option>
+<option value="13.5|2100">Poplar / aspen — 13.5M BTU/cord</option>
+<option value="15.5|2400">Mixed softwood — 15.5M BTU/cord</option>
+</select></label>
+<label>Price per cord ($) <input id="fwPrice" type="number" value="350" step="1"></label>
+<label>Daily heat needed (BTU, default 150,000) <input id="fwDaily" type="number" value="150000" step="1000"></label>
+<button onclick="firewood()">Calculate firewood</button>
+<div class="result" id="fwOut">Enter your stack and press Calculate.</div>
+</div>
+
+<div class="tool" id="solar">
+<h2>2. Cabin Solar &amp; Battery Estimator</h2>
+<label>Daily electricity use (watt-hours) <input id="sWh" type="number" value="2000" step="10"></label>
+<label>Peak sun hours per day <input id="sSun" type="number" value="3" step="0.1"></label>
+<label>Days of battery backup <input id="sDays" type="number" value="2" step="0.5"></label>
+<label>Battery system voltage
+<select id="sV"><option value="12">12V</option><option value="24">24V</option><option value="48">48V</option></select></label>
+<label>Usable battery depth (lithium ~80%, lead-acid ~50%)
+<select id="sDod"><option value="0.8">80% — lithium</option><option value="0.5">50% — lead-acid</option></select></label>
+<button onclick="solar()">Estimate solar &amp; battery</button>
+<div class="result" id="sOut">Enter your daily use and press Estimate.</div>
+</div>
+
+<div class="tool" id="generator">
+<h2>3. Generator Runtime Calculator</h2>
+<label>Fuel tank (gallons) <input id="gTank" type="number" value="5" step="0.1"></label>
+<label>Fuel use at your usual load (gallons per hour) <input id="gUse" type="number" value="0.5" step="0.05"></label>
+<label>Hours run per day <input id="gHrs" type="number" value="8" step="0.5"></label>
+<button onclick="gen()">Calculate runtime</button>
+<div class="result" id="gOut">Enter tank and fuel use and press Calculate.</div>
+</div>
+
+<div class="tool" id="propane">
+<h2>4. Propane Usage Calculator</h2>
+<label>Tank size
+<select id="pTank"><option value="4.6">20 lb tank — 4.6 gal</option><option value="23.6">100 lb tank — 23.6 gal</option><option value="100">100 gal tank</option><option value="250">250 gal tank</option></select></label>
+<label>Appliance rating (BTU per hour) <input id="pBtu" type="number" value="30000" step="1000"></label>
+<label>Hours used per day <input id="pHrs" type="number" value="4" step="0.5"></label>
+<button onclick="prop()">Calculate propane</button>
+<div class="result" id="pOut">Enter tank and appliance and press Calculate.</div>
+<p class="note">Propane contains about 91,500 BTU per gallon. Tank sizes above are usable gallons, approximate.</p>
+</div>
+
+<div class="tool" id="water">
+<h2>5. Water Supply Calculator</h2>
+<label>Water on hand (gallons) <input id="wGal" type="number" value="250" step="1"></label>
+<label>People <input id="wPeople" type="number" value="2" step="1"></label>
+<label>Gallons per person per day <input id="wUse" type="number" value="10" step="1"></label>
+<button onclick="water()">Calculate water days</button>
+<div class="result" id="wOut">Enter water and use and press Calculate.</div>
+<p class="note">10 gallons per person per day is a frugal camp figure. Flushing, laundry, and showers push it much higher.</p>
+</div>
+
+<div class="ad">
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5167099168803263" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section>
+<h2>How this site makes money</h2>
+<p>Advertising and, in time, affiliate links to gear actually used off-grid. Affiliate links will be clearly labelled when added. No placeholder affiliate tag is used here — links will only be added once a real Associates account is approved.</p>
+<p class="note">Disclaimer: BTU, weight, solar, fuel, and water figures are seasoned-wood and planning approximations. Your stove, weather, insulation, and actual equipment will change the real numbers. This toolkit does not replace a licensed gas fitter, electrician, or other professional for gas, electrical, or structural work.</p>
+</section>
+</main>
+<footer>
+<p>Off-Grid Living Toolkit — a free tool for camp and cabin life. Ads are wired for Google AdSense (publisher ca-pub-5167099168803263) and will only serve after the hosting site is added to and approved in AdSense.</p>
+</footer>
+<script>
+function firewood(){
+  const L=+document.getElementById('fwL').value, H=+document.getElementById('fwH').value,
+  len=+document.getElementById('fwLen').value, price=+document.getElementById('fwPrice').value,
+  daily=+document.getElementById('fwDaily').value;
+  const [btu, lbs]=document.getElementById('fwSp').value.split('|').map(Number);
+  const depth=len/12, cords=L*H*depth/128, face=L*H/32, totalBtu=cords*btu*1000000,
+  weight=cords*lbs, value=cords*price, perMM=price/(btu), days=totalBtu/daily;
+  document.getElementById('fwOut').textContent=
+  `Full cords: ${cords.toFixed(2)}\nFace cords (16-in basis): ${face.toFixed(2)}\nTotal heat: ${(totalBtu/1000000).toFixed(2)} million BTU\nSeasoned weight: ${weight.toFixed(0)} lbs (${(weight*0.4536).toFixed(0)} kg)\nStack value: $${value.toFixed(2)}\nCost per million BTU: $${perMM.toFixed(2)}\nDays of heat at ${daily.toLocaleString()} BTU/day: ${days.toFixed(0)} days`;
+}
+function solar(){
+  const wh=+document.getElementById('sWh').value, sun=+document.getElementById('sSun').value,
+  days=+document.getElementById('sDays').value, v=+document.getElementById('sV').value,
+  dod=+document.getElementById('sDod').value;
+  const panels=Math.ceil(wh/sun/0.8), batt=Math.ceil(wh*days/(v*dod));
+  document.getElementById('sOut').textContent=
+  `Solar panels needed (approx): ${panels} watts\nBattery bank needed (approx): ${batt} amp-hours at ${v}V\nAssumes 20% system losses. Winter sun hours are much lower — size for your worst month, not your best.`;
+}
+function gen(){
+  const tank=+document.getElementById('gTank').value, use=+document.getElementById('gUse').value,
+  hrs=+document.getElementById('gHrs').value;
+  const runtime=tank/use, days=runtime/hrs;
+  document.getElementById('gOut').textContent=
+  `Runtime per tank: ${runtime.toFixed(1)} hours\nAt ${hrs} hours/day: ${days.toFixed(1)} days per tank\nFuel per day: ${(use*hrs).toFixed(2)} gallons`;
+}
+function prop(){
+  const tank=+document.getElementById('pTank').value, btu=+document.getElementById('pBtu').value,
+  hrs=+document.getElementById('pHrs').value;
+  const galDay=btu*hrs/91500, days=tank/galDay;
+  document.getElementById('pOut').textContent=
+  `Propane used per day: ${galDay.toFixed(2)} gallons\nTank lasts: ${days.toFixed(1)} days`;
+}
+function water(){
+  const gal=+document.getElementById('wGal').value, ppl=+document.getElementById('wPeople').value,
+  use=+document.getElementById('wUse').value;
+  const days=gal/(ppl*use);
+  document.getElementById('wOut').textContent=
+  `Daily use: ${(ppl*use).toFixed(0)} gallons\nSupply lasts: ${days.toFixed(1)} days`;
+}
+</script>
+</body>
+</html>
