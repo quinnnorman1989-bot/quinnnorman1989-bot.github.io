@@ -846,19 +846,8 @@ function resetAll(){
   localStorage.removeItem(LS_KEY); load(); go('home');
 }
 
-/* ==================== ADS (Free plan only) ==================== */
-/* Google AdSense Auto ads - loaded only for Free users. Pro users never load the ad script. */
-(function(){
-  try{
-    var exp = parseInt(localStorage.getItem('packright_pro_expiry')||'0',10);
-    if(exp > Date.now()) return; /* Pro: no ads */
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5167099168803263';
-    s.crossOrigin = 'anonymous';
-    document.head.appendChild(s);
-  }catch(e){}
-})();
+/* ==================== ADS ==================== */
+/* No ads inside the app. Google AdSense cannot run on app screens — ads live on the packing guides at /guides/ only. Pro is ad-free. */
 
 /* ==================== INIT ==================== */
 load();
