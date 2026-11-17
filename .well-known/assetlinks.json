@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.quinnford.packright",
-        "sha256_cert_fingerprints": ["17:59:73:C0:4C:25:40:74:D6:F1:E7:E8:93:F8:58:7D:30:68:35:24:3C:DB:7A:F4:6D:9D:FF:61:E8:48:BE:08"]
+        "sha256_cert_fingerprints": ["77:F6:8E:AF:B6:3B:FB:2C:95:87:6C:EA:1D:08:2F:E3:4E:45:2D:90:1A:A5:A8:36:5B:93:5E:C0:E7:0E:EE:38"]
       }
     }]
